@@ -8,7 +8,7 @@ window.Graal = (function () {
 
     var GraalObject = function (dom) {
         this.listeners = {};
-        this.id = dom.getAttribute("graal-id");
+        this.id = dom.getAttribute("name") || dom.getAttribute("graal-id");
         this.DOMelement = dom;
         this.type = dom.getAttribute("graal-type") || dom.getAttribute("type") || dom.tagName.toLowerCase();
         this.pseudo = [];
@@ -22,7 +22,7 @@ window.Graal = (function () {
             t.setAttribute("graal-type", "checkbox");
 
             if (that.DOMelement.checked) {
-                t.setAttribute("graal-value", "true");                
+                t.setAttribute("graal-value", "true");
             }
 
             t.addEventListener("click", function () {
@@ -44,7 +44,7 @@ window.Graal = (function () {
             t.setAttribute("graal-render-id", this.id);
 
             if (that.DOMelement.checked) {
-                t.setAttribute("graal-value", "true");                
+                t.setAttribute("graal-value", "true");
             }
 
             t.addEventListener("click", function () {
@@ -69,7 +69,7 @@ window.Graal = (function () {
     };
 
     GraalObject.prototype.bind = function (type, callback) {
-        this.DOMelement.addEventListener("change", callback);
+        this.DOMelement.addEventListener(type, callback);
         this.listeners[type] = callback;
         return this;
     };
@@ -82,12 +82,16 @@ window.Graal = (function () {
 
             window.onload = function () {
 
-                var i = 0;
+                var i = 0,
+                    GraalObj = null;
 
-                graal.doms = document.querySelectorAll("[graal-id]");
+                graal.doms = document.querySelectorAll("input, textarea, [graal-id]");
 
                 for (i = graal.doms.length - 1; i >= 0; i -= 1) {
-                    graal.objects[graal.doms[i].getAttribute("graal-id")] = new GraalObject(graal.doms[i]);
+                    GraalObj = new GraalObject(graal.doms[i]);
+                    if (GraalObj.id !== null) {
+                        graal.objects[GraalObj.id] = GraalObj;
+                    }
                 }
 
                 graal.onReady();
