@@ -1,4 +1,4 @@
-/*global window */
+/*global window, Event */
 
 "use strict";
 
@@ -19,6 +19,7 @@ window.Graal = (function () {
         if (this.type === "checkbox") {
 
             t = document.createElement("span");
+            this.pseudo.push(t);
             t.setAttribute("graal-type", "checkbox");
 
             if (that.DOMelement.checked) {
@@ -26,6 +27,7 @@ window.Graal = (function () {
             }
 
             t.addEventListener("click", function () {
+
                 if (t.getAttribute("graal-value") === "true") {
                     t.setAttribute("graal-value", false);
                     that.DOMelement.checked = false;
@@ -33,8 +35,18 @@ window.Graal = (function () {
                     t.setAttribute("graal-value", true);
                     that.DOMelement.checked = true;
                 }
+
+                if (Event) {
+                    var event = new Event('change');
+                    that.DOMelement.dispatchEvent(event);
+                } else {
+                    that.DOMelement.fireEvent("onchange");
+                }
+
             });
+
             this.DOMelement.parentNode.insertBefore(t, this.DOMelement.nextSibling);
+
         }
 
         if (this.type === "radio") {
@@ -62,6 +74,14 @@ window.Graal = (function () {
                 } else {
                     t.setAttribute("graal-value", true);
                     that.DOMelement.checked = true;
+
+                    if (Event) {
+                        var event = new Event('change');
+                        that.DOMelement.dispatchEvent(event);
+                    } else {
+                        that.DOMelement.fireEvent("onchange");
+                    }
+
                 }
             });
             this.DOMelement.parentNode.insertBefore(t, this.DOMelement.nextSibling);
@@ -74,9 +94,23 @@ window.Graal = (function () {
     };
 
     GraalObject.prototype.bind = function (type, callback) {
-        this.DOMelement.addEventListener(type, callback);
-        this.listeners[type] = callback;
+
+        switch (type) {
+        case "change":
+            this.DOMelement.addEventListener(type, callback);
+            this.listeners[type] = callback;
+            break;
+        default:
+            if (this.pseudo.length > 0) {
+                this.pseudo[0].addEventListener(type, callback);
+            } else {
+                this.DOMelement.addEventListener(type, callback);
+            }
+            this.listeners[type] = callback;
+            break;
+        }
         return this;
+
     };
 
     var graal = {
