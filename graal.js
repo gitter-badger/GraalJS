@@ -66,6 +66,11 @@ window.Graal = (function () {
             });
             this.DOMelement.parentNode.insertBefore(t, this.DOMelement.nextSibling);
         }
+
+        if (["submit", "button", "textarea", "text"].indexOf(this.type) === -1) {
+            this.DOMelement.style.display = "none";
+        }
+
     };
 
     GraalObject.prototype.bind = function (type, callback) {
@@ -85,7 +90,7 @@ window.Graal = (function () {
                 var i = 0,
                     GraalObj = null;
 
-                graal.doms = document.querySelectorAll("input, textarea, [graal-id]");
+                graal.doms = document.querySelectorAll("input, select, textarea, button, [graal-id]");
 
                 for (i = graal.doms.length - 1; i >= 0; i -= 1) {
                     GraalObj = new GraalObject(graal.doms[i]);
